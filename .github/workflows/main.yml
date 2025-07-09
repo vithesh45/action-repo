@@ -1,0 +1,22 @@
+name: Send Webhook Event
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  send-event:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send webhook to server
+        run: |
+          curl -X POST "${{ secrets.WEBHOOK_URL }}" ^
+          -H "Content-Type: application/json" ^
+          -d "{
+            \"event\": \"${{ github.event_name }}\",
+            \"author\": \"${{ github.actor }}\",
+            \"from_branch\": \"${{ github.head_ref || github.ref_name }}\",
+            \"to_branch\": \"main\",
+            \"timestamp\": \"${{ github.event.head_commit.timestamp || github.event.pull_request.updated_at }}\"
+          }"
